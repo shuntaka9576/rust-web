@@ -1,4 +1,10 @@
 
+## アプリ関連
+
+```bash
+cargo make before-build
+cargo make test
+```
 
 ## コンテナ起動
 
@@ -36,4 +42,12 @@ psql "postgresql://localhost:5432/app?user=app&password=passwd"
 cargo add axum@0.7.5 --features macros
 cargo add tokio@1.37.0 --features full
 cargo add --dev rstest@0.18.2
+cargo add cargo-nextest
+cargo add sqlx@0.7.3 --features \
+runtime-tokio,\
+uuid,\
+chrono,\
+macros,\
+postgres,\
+migrate
 ```
