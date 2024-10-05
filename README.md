@@ -29,3 +29,11 @@ redis-cli -h localhost -p 6379
 ```bash
 psql "postgresql://localhost:5432/app?user=app&password=passwd"
 ```
+
+## モジュール追加
+
+```bash
+cargo add axum@0.7.5 --features macros
+cargo add tokio@1.37.0 --features full
+cargo add --dev rstest@0.18.2
+```
