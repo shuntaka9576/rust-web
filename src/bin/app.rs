@@ -1,8 +1,5 @@
 use sqlx::{postgres::PgConnectOptions, PgPool};
-use std::{
-    net::{Ipv4Addr, SocketAddr},
-    u16,
-};
+use std::net::{Ipv4Addr, SocketAddr};
 
 use anyhow::Result;
 use axum::{extract::State, http::StatusCode, routing::get, Router};
