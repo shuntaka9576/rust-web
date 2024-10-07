@@ -51,3 +51,15 @@ macros,\
 postgres,\
 migrate
 ```
+
+## DB関連
+
+マイグレーションファイルの用意(初回のみ)
+```bash
+sqlx migrate add -r start --source adapter/migrations
+```
+
+
+```bash
+cargo make migrate
+```
