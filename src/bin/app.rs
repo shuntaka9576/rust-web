@@ -5,7 +5,7 @@ use anyhow::{Error, Result};
 use api::route::{book::build_book_routers, health::build_health_check_routers};
 use axum::Router;
 use registry::AppRegistry;
-use shared::{config::AppConfig, env::Environment};
+use shared::config::AppConfig;
 
 use adapter::database::connect_database_with;
 use tokio::net::TcpListener;

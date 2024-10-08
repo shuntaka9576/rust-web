@@ -9,7 +9,6 @@ use kernel::{
     repository::book::BookRepository,
 };
 use shared::error::{AppError, AppResult};
-use uuid::Uuid;
 
 #[derive(new)]
 pub struct BookRepositoryImpl {
@@ -51,7 +50,8 @@ impl BookRepository for BookRepositoryImpl {
         "#
         )
         .fetch_all(self.db.inner_ref())
-        .await?;
+        .await
+        .map_err(AppError::SpecificOperationError)?;
 
         Ok(rows.into_iter().map(Book::from).collect())
     }
@@ -72,7 +72,8 @@ impl BookRepository for BookRepositoryImpl {
             book_id as _ // query_as!マクロによるコンパイル時の型チェックを無効化
         )
         .fetch_optional(self.db.inner_ref())
-        .await?;
+        .await
+        .map_err(AppError::SpecificOperationError)?;
 
         Ok(row.map(Book::from))
     }
