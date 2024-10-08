@@ -7,8 +7,8 @@ use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct AppRegistry {
-    health_check_repository: Arc<dyn HealthCheckRepository>,
-    book_repository: Arc<dyn BookRepository>,
+    pub health_check_repository: Arc<dyn HealthCheckRepository>,
+    pub book_repository: Arc<dyn BookRepository>,
 }
 
 impl AppRegistry {

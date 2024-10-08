@@ -63,3 +63,15 @@ sqlx migrate add -r start --source adapter/migrations
 ```bash
 cargo make migrate
 ```
+
+## テスト
+
+```bash
+curl -v -X POST "http://localhost:8080/books" \
+  -H 'content-type: application/json' \
+  -d '{"title": "t", "author": "a", "isbn": "i", "description": "d"}'
+```
+
+```bash
+curl -v http://localhost:8080/books | jq .
+```
