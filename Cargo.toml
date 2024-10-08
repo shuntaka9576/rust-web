@@ -24,7 +24,7 @@ kernel = { path = "./kernel" }
 shared = { path = "./shared" }
 registry = { path = "./registry" }
 async-trait = "0.1.74"
-anyhow = { version = "1.0.75", features = ["backtrace"] }
+anyhow = "1.0.75"
 axum = { version = "0.7.5", features = ["macros"] }
 derive-new = "0.6.0"
 utoipa = { version = "4.1.0", features = ["axum_extras", "uuid", "chrono"] }
@@ -57,8 +57,8 @@ garde = { version = "0.18.0", features = ["derive", "email"] }
 tower-http = { version = "0.5.0", features = ["cors", "trace"] }
 adapter.workspace = true
 api.workspace = true
-registry.workspace = true
 shared.workspace = true
+registry.workspace = true
 anyhow.workspace = true
 axum.workspace = true
 utoipa.workspace = true

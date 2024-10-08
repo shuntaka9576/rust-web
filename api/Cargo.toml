@@ -26,5 +26,5 @@ garde.workspace = true
 anyhow.workspace = true
 hyper = "0.14.27"
 mockall.workspace = true
-rtest = "0.18.2"
+rstest = "0.18.2"
 serde_json = "1.0.105"
