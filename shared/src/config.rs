@@ -39,6 +39,7 @@ pub struct DatabaseConfig {
     pub database: String,
 }
 
+#[derive(Debug)]
 pub struct RedisConfig {
     pub host: String,
     pub port: u16,

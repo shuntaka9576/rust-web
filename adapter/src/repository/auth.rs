@@ -64,7 +64,7 @@ impl AuthRepository for AuthRepositoryImpl {
 
     async fn create_token(&self, event: CreateToken) -> AppResult<AccessToken> {
         let (key, value) = from(event);
-        self.kv.set_ex(&key, &value, self.ttl).await?;
+        let result = self.kv.set_ex(&key, &value, self.ttl).await;
         Ok(key.into())
     }
 

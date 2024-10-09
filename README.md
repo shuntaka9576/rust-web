@@ -76,8 +76,16 @@ curl -v -X POST "http://localhost:8080/books" \
 curl -v http://localhost:8080/books | jq .
 ```
 
+
+ログイン
 ```bash
 curl -v -X POST "http://localhost:8080/auth/login" \
   -H 'content-type: application/json' \
   -d '{"email": "eleazar.fig@example.com", "password": "Pa55w0rd"}'
+```
+
+ログアウト
+```bash
+curl -v -X POST "http://localhost:8080/auth/logout" \
+  -H 'Authorization: Bearer 3e933340f07240cbb0c9b787b36f1873'
 ```
