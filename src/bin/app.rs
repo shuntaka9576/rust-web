@@ -1,13 +1,16 @@
 use shared::env::{which, Environment};
-use std::net::{Ipv4Addr, SocketAddr};
+use std::{
+    net::{Ipv4Addr, SocketAddr},
+    sync::Arc,
+};
 
 use anyhow::{Error, Result};
-use api::route::{book::build_book_routers, health::build_health_check_routers};
+use api::route::{auth, book::build_book_routers, health::build_health_check_routers};
 use axum::Router;
 use registry::AppRegistry;
 use shared::config::AppConfig;
 
-use adapter::database::connect_database_with;
+use adapter::{database::connect_database_with, redis::RedisClient};
 use tokio::net::TcpListener;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
@@ -41,11 +44,14 @@ async fn bootstrap() -> Result<()> {
     let app_config = AppConfig::new()?;
     let pool = connect_database_with(&app_config.database);
 
-    let registry = AppRegistry::new(pool);
+    let kv = Arc::new(RedisClient::new(&app_config.redis)?);
+
+    let registry = AppRegistry::new(pool, kv, app_config);
 
     let app = Router::new()
         .merge(build_health_check_routers())
         .merge(build_book_routers())
+        .merge(auth::routes())
         .with_state(registry);
 
     let addr = SocketAddr::new(Ipv4Addr::LOCALHOST.into(), 8080);

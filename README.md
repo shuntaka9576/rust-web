@@ -75,3 +75,9 @@ curl -v -X POST "http://localhost:8080/books" \
 ```bash
 curl -v http://localhost:8080/books | jq .
 ```
+
+```bash
+curl -v -X POST "http://localhost:8080/auth/login" \
+  -H 'content-type: application/json' \
+  -d '{"email": "eleazar.fig@example.com", "password": "Pa55w0rd"}'
+```
