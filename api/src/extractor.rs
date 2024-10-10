@@ -9,7 +9,7 @@ use shared::error::AppError;
 
 pub struct AuthorizedUser {
     pub access_token: AccessToken,
-    pub user: User, // TODO:
+    pub user: User,
 }
 
 impl AuthorizedUser {

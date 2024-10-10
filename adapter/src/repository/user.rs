@@ -1,5 +1,3 @@
-use std::str::FromStr;
-
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use derive_new::new;
@@ -42,7 +40,7 @@ impl UserRepository for UserRepositoryImpl {
             u.user_id,
             u.name,
             u.email,
-            u.name as role_name,
+            r.name as role_name,
             u.created_at,
             u.updated_at
         FROM users AS u
@@ -62,7 +60,29 @@ impl UserRepository for UserRepositoryImpl {
     }
 
     async fn find_all(&self) -> AppResult<Vec<User>> {
-        todo!()
+        let users = sqlx::query_as!(
+            UserRow,
+            r#"
+        SELECT
+            u.user_id,
+            u.name,
+            u.email,
+            u.name as role_name,
+            u.created_at,
+            u.updated_at
+        FROM users AS u
+        INNER JOIN roles AS r USING(role_id)
+        ORDER BY u.created_at DESC
+            "#
+        )
+        .fetch_optional(self.db.inner_ref())
+        .await
+        .map_err(AppError::SpecificOperationError)?
+        .into_iter()
+        .filter_map(|row| User::try_from(row).ok())
+        .collect();
+
+        Ok(users)
     }
 
     async fn create(&self, event: CreateUser) -> AppResult<User> {
