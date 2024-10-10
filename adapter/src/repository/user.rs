@@ -93,17 +93,73 @@ impl UserRepository for UserRepositoryImpl {
         )
         .execute(self.db.inner_ref())
         .await
-        .map_err(AppError::SpecificOperationError);
+        .map_err(AppError::SpecificOperationError)?;
 
-        todo!();
+        if res.rows_affected() < 1 {
+            return Err(AppError::NoRowsAffectedError(
+                "No user has been created".into(),
+            ));
+        }
+
+        Ok(User {
+            id: user_id,
+            name: event.name,
+            email: event.email,
+            role,
+        })
     }
 
     async fn update_password(&self, event: UpdateUserPassword) -> AppResult<()> {
-        todo!()
+        let mut tx = self.db.begin().await?;
+
+        let original_password_hash = sqlx::query!(
+            r#"
+               SELECT password_hash FROM users WHERE user_id = $1;
+            "#,
+            event.user_id as _
+        )
+        .fetch_one(&mut *tx)
+        .await
+        .map_err(AppError::SpecificOperationError)?
+        .password_hash;
+
+        verify_password(&event.current_password, &original_password_hash)?;
+
+        let new_password_hash = hashed_password(&event.new_password)?;
+        sqlx::query!(
+            r#"
+            UPDATE users SET password_hash = $2 WHERE user_id = $1;
+        "#,
+            event.user_id as _,
+            new_password_hash
+        )
+        .execute(&mut *tx)
+        .await
+        .map_err(AppError::SpecificOperationError);
+
+        tx.commit().await.map_err(AppError::TransactionError)?;
+
+        Ok(())
     }
 
     async fn update_role(&self, event: UpdateUserRole) -> AppResult<()> {
-        todo!()
+        let res = sqlx::query!(
+            r#"
+        UPDATE users SET role_id = (SELECT role_id FROM roles WHERE name = $2)
+        WHERE user_id = $1
+        "#,
+            event.user_id as _,
+            event.role.as_ref()
+        )
+        .execute(self.db.inner_ref())
+        .await
+        .map_err(AppError::SpecificOperationError)?;
+
+        if res.rows_affected() < 1 {
+            return Err(AppError::EntityNotFound("Specified user not found".into()));
+        }
+
+        Ok(())
     }
 
     async fn delete(&self, event: DeleteUser) -> AppResult<()> {
