@@ -1,10 +1,8 @@
 use async_trait::async_trait;
-use chrono::{DateTime, Utc};
 use derive_new::new;
 use kernel::{
     model::{
         id::UserId,
-        role::Role,
         user::{
             event::{CreateUser, DeleteUser, UpdateUserPassword, UpdateUserRole},
             User,
@@ -14,20 +12,11 @@ use kernel::{
 };
 use shared::error::{AppError, AppResult};
 
-use crate::database::ConnectionPool;
+use crate::database::{model::user::UserRow, ConnectionPool};
 
 #[derive(new)]
 pub struct UserRepositoryImpl {
     db: ConnectionPool,
-}
-
-pub struct UserRow {
-    pub user_id: UserId,
-    pub name: String,
-    pub email: String,
-    pub role_name: String,
-    pub created_at: DateTime<Utc>,
-    pub updated_at: DateTime<Utc>,
 }
 
 #[async_trait]
@@ -99,27 +88,5 @@ impl UserRepository for UserRepositoryImpl {
 
     async fn delete(&self, event: DeleteUser) -> AppResult<()> {
         todo!()
-    }
-}
-
-impl TryFrom<UserRow> for User {
-    type Error = AppError;
-    fn try_from(value: UserRow) -> Result<Self, Self::Error> {
-        let UserRow {
-            user_id,
-            name,
-            email,
-            role_name,
-            created_at,
-            updated_at,
-        } = value;
-
-        Ok(User {
-            id: user_id,
-            name,
-            email,
-            role: Role::from_str(role_name.as_str())
-                .map_err(|e| AppError::ConversionEntityError(e.to_string()))?,
-        })
     }
 }
