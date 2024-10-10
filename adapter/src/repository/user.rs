@@ -3,6 +3,7 @@ use derive_new::new;
 use kernel::{
     model::{
         id::UserId,
+        role::Role,
         user::{
             event::{CreateUser, DeleteUser, UpdateUserPassword, UpdateUserRole},
             User,
@@ -75,7 +76,26 @@ impl UserRepository for UserRepositoryImpl {
     }
 
     async fn create(&self, event: CreateUser) -> AppResult<User> {
-        todo!()
+        let user_id = UserId::new();
+        let hashed_password = hashed_password(&event.password)?;
+        let role = Role::User;
+
+        let res = sqlx::query!(
+            r#"
+               INSERT INTO users(user_id, name, email, password_hash, role_id)
+               SELECT $1, $2, $3, $4, role_id FROM roles WHERE name = $5;
+            "#,
+            user_id as _,
+            event.name,
+            event.email,
+            hashed_password,
+            role.as_ref()
+        )
+        .execute(self.db.inner_ref())
+        .await
+        .map_err(AppError::SpecificOperationError);
+
+        todo!();
     }
 
     async fn update_password(&self, event: UpdateUserPassword) -> AppResult<()> {
@@ -89,4 +109,17 @@ impl UserRepository for UserRepositoryImpl {
     async fn delete(&self, event: DeleteUser) -> AppResult<()> {
         todo!()
     }
+}
+
+fn hashed_password(password: &str) -> AppResult<String> {
+    bcrypt::hash(password, bcrypt::DEFAULT_COST).map_err(AppError::from)
+}
+
+fn verify_password(password: &str, hash: &str) -> AppResult<()> {
+    let valid = bcrypt::verify(password, hash)?;
+    if !valid {
+        return Err(AppError::UnauthenticatedErrorError);
+    }
+
+    Ok(())
 }
