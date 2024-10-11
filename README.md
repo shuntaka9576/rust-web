@@ -79,13 +79,21 @@ curl -v http://localhost:8080/books | jq .
 
 ログイン
 ```bash
-curl -v -X POST "http://localhost:8080/auth/login" \
+export TOKEN=$(curl -s -X POST "http://localhost:8080/auth/login" \
   -H 'content-type: application/json' \
-  -d '{"email": "eleazar.fig@example.com", "password": "Pa55w0rd"}'
+  -d '{"email": "eleazar.fig@example.com", "password": "Pa55w0rd"}' | jq -r ".accessToken")
 ```
+
+ユーザー一覧の取得
+
+```bash
+curl -v -X GET "http://localhost:8080/api/v1/users" \
+  -H "Authorization: Bearer $TOKEN"
+```
+
 
 ログアウト
 ```bash
 curl -v -X POST "http://localhost:8080/auth/logout" \
-  -H 'Authorization: Bearer 3e933340f07240cbb0c9b787b36f1873'
+  -H "Authorization: Bearer $TOKEN"
 ```

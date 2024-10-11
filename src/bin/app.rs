@@ -5,7 +5,7 @@ use std::{
 };
 
 use anyhow::{Error, Result};
-use api::route::{auth, book::build_book_routers, health::build_health_check_routers};
+use api::route::{auth, book::build_book_routers, health::build_health_check_routers, v1};
 use axum::Router;
 use registry::AppRegistry;
 use shared::config::AppConfig;
@@ -50,7 +50,7 @@ async fn bootstrap() -> Result<()> {
 
     let app = Router::new()
         .merge(build_health_check_routers())
-        .merge(build_book_routers())
+        .merge(v1::routes())
         .merge(auth::routes())
         .with_state(registry);
 

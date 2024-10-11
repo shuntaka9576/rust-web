@@ -3,6 +3,7 @@ use kernel::model::{id::UserId, role::Role, user::User};
 use shared::error::AppError;
 use std::str::FromStr; // これがないとroleでエラーになる
 
+#[derive(Debug)]
 pub struct UserRow {
     pub user_id: UserId,
     pub name: String,
