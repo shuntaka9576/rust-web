@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n        SELECT\n            u.user_id,\n            u.name,\n            u.email,\n            u.name as role_name,\n            u.created_at,\n            u.updated_at\n        FROM users AS u\n        INNER JOIN roles AS r USING(role_id)\n        ORDER BY u.created_at DESC\n            ",
+  "query": "\n        SELECT\n            u.user_id,\n            u.name,\n            u.email,\n            r.name as role_name,\n            u.created_at,\n            u.updated_at\n        FROM users AS u\n        INNER JOIN roles AS r USING(role_id)\n        ORDER BY u.created_at DESC\n            ",
   "describe": {
     "columns": [
       {
@@ -46,5 +46,5 @@
       false
     ]
   },
-  "hash": "072845d0066dbd3aa8fddaedb302d14d23ceab32049ccd2b7eef54e9afedc7af"
+  "hash": "a6b32bc9619d4603abd1b5ea511dd1e3f7b58314eefafac264215940af2710a5"
 }

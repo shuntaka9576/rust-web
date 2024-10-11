@@ -57,7 +57,7 @@ impl UserRepository for UserRepositoryImpl {
             u.user_id,
             u.name,
             u.email,
-            u.name as role_name,
+            r.name as role_name,
             u.created_at,
             u.updated_at
         FROM users AS u
