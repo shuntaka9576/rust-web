@@ -217,8 +217,7 @@ impl CheckoutRepository for CheckoutRepositoryImpl {
         .fetch_all(self.db.inner_ref())
         .await
         .map(|rows| rows.into_iter().map(Checkout::from).collect())
-        // .map(|rows| rows.into_iter().map(Checkout::from).collect())
-        .map_err(AppError::SpecificOperationError)?
+        .map_err(AppError::SpecificOperationError)
     }
 
     async fn find_unreturned_by_user_id(&self, user_id: UserId) -> AppResult<Vec<Checkout>> {
