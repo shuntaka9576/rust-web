@@ -47,7 +47,7 @@ impl From<CheckoutRow> for Checkout {
     }
 }
 
-pub struct RetunedCheckoutRow {
+pub struct ReturnedCheckoutRow {
     pub checkout_id: CheckoutId,
     pub book_id: BookId,
     pub user_id: UserId,
@@ -58,9 +58,9 @@ pub struct RetunedCheckoutRow {
     pub isbn: String,
 }
 
-impl From<RetunedCheckoutRow> for Checkout {
-    fn from(value: RetunedCheckoutRow) -> Self {
-        let RetunedCheckoutRow {
+impl From<ReturnedCheckoutRow> for Checkout {
+    fn from(value: ReturnedCheckoutRow) -> Self {
+        let ReturnedCheckoutRow {
             checkout_id,
             book_id,
             user_id,

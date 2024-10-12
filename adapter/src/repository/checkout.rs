@@ -14,7 +14,7 @@ use kernel::{
 use shared::error::{AppError, AppResult};
 
 use crate::database::{
-    model::checkout::{CheckoutRow, CheckoutStateRow},
+    model::checkout::{CheckoutRow, CheckoutStateRow, ReturnedCheckoutRow},
     ConnectionPool,
 };
 
@@ -33,6 +33,32 @@ impl CheckoutRepositoryImpl {
             .await
             .map_err(AppError::SpecificOperationError)?;
         Ok(())
+    }
+
+    async fn find_unreturned_by_book_id(&self, book_id: BookId) -> AppResult<Option<Checkout>> {
+        let res = sqlx::query_as!(
+            CheckoutRow,
+            r#"
+        SELECT 
+            c.checkout_id,
+            c.book_id,
+            c.user_id,
+            c.checked_out_at,
+            b.title,
+            b.author,
+            b.isbn
+        FROM checkouts AS c
+        INNER JOIN books AS b USING(book_id)
+        WHERE c.book_id = $1
+            "#,
+            book_id as _
+        )
+        .fetch_optional(self.db.inner_ref())
+        .await
+        .map_err(AppError::SpecificOperationError)?
+        .map(Checkout::from);
+
+        Ok(res)
     }
 }
 
@@ -198,7 +224,7 @@ impl CheckoutRepository for CheckoutRepositoryImpl {
     }
 
     async fn find_unreturned_all(&self) -> AppResult<Vec<Checkout>> {
-        let rows = sqlx::query_as!(
+        sqlx::query_as!(
             CheckoutRow,
             r#"
          SELECT 
@@ -216,12 +242,13 @@ impl CheckoutRepository for CheckoutRepositoryImpl {
         )
         .fetch_all(self.db.inner_ref())
         .await
-        .map_err(AppError::SpecificOperationError)?;
-
-        // NOTE: 書籍の書き方だと型推論を効かせる形式でコンパイルが通ったり通らなかったりする
-        rows.into_iter()
-            .map(Checkout::from)
-            .collect::<Vec<Checkout>>();
+        .map(|rows| {
+            rows.into_iter()
+                .map(Checkout::from)
+                .collect::<Vec<Checkout>>()
+        }) // FIXME:
+        // 書籍だと.collectの型変換は存在しない。その書き方だとコンパイルエラーになるため追加している
+        .map_err(AppError::SpecificOperationError)
     }
 
     async fn find_unreturned_by_user_id(&self, user_id: UserId) -> AppResult<Vec<Checkout>> {
@@ -254,6 +281,38 @@ impl CheckoutRepository for CheckoutRepositoryImpl {
     }
 
     async fn find_history_by_book_id(&self, book_id: BookId) -> AppResult<Vec<Checkout>> {
-        todo!()
+        let checkout: Option<Checkout> = self.find_unreturned_by_book_id(book_id).await?;
+
+        let mut checkout_histories: Vec<Checkout> = sqlx::query_as!(
+            ReturnedCheckoutRow,
+            r#"
+        SELECT 
+            c.checkout_id,
+            c.book_id,
+            c.user_id,
+            c.checked_out_at,
+            c.returned_at,
+            b.title,
+            b.author,
+            b.isbn
+        FROM returned_checkouts AS c
+        INNER JOIN books AS b USING(book_id)
+        WHERE c.book_id = $1
+        ORDER BY c.checked_out_at DESC;
+            "#,
+            book_id as _
+        )
+        .fetch_all(self.db.inner_ref())
+        .await
+        .map_err(AppError::SpecificOperationError)?
+        .into_iter()
+        .map(Checkout::from)
+        .collect();
+
+        if let Some(co) = checkout {
+            checkout_histories.insert(0, co)
+        }
+
+        Ok(checkout_histories)
     }
 }
