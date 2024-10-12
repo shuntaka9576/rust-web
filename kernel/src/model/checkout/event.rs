@@ -3,7 +3,7 @@ use derive_new::new;
 
 use crate::model::id::{BookId, CheckoutId, UserId};
 
-#[derive(new)]
+#[derive(new, Debug)]
 pub struct CreateCheckout {
     pub book_id: BookId,
     pub checked_out_by: UserId,

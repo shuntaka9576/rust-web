@@ -4,6 +4,7 @@ use kernel::model::{
     id::{BookId, CheckoutId, UserId},
 };
 
+#[derive(Debug)]
 pub struct CheckoutStateRow {
     pub book_id: BookId,
     pub checkout_id: Option<CheckoutId>,

@@ -87,7 +87,7 @@ curl -v http://localhost:8080/books | jq .
 ```
 
 
-ログイン
+ログイン(トークンの取得)
 ```bash
 export TOKEN=$(curl -s -X POST "http://localhost:8080/auth/login" \
   -H 'content-type: application/json' \
@@ -101,18 +101,9 @@ curl -v -X GET "http://localhost:8080/api/v1/users" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
-
 ログアウト
 ```bash
 curl -v -X POST "http://localhost:8080/auth/logout" \
-  -H "Authorization: Bearer $TOKEN"
-```
-
-本の一覧取得
-
-```bash
-curl -v -X GET "http://localhost:8080/api/v1/books" \
-  -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN"
 ```
 
@@ -123,4 +114,26 @@ curl -v -X POST "http://localhost:8080/api/v1/books" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"title": "Rust book", "author":"me", "isbn":"1234567890", "description":""}'
+```
+
+蔵書の確認
+
+```bash
+export BOOK_ID="$(curl -s -X GET "http://localhost:8080/api/v1/books" \
+  -H "Authorization: Bearer $TOKEN" | jq -r '.items[0].id')"
+echo $BOOK_ID
+```
+
+貸出の実行
+
+```bash
+curl -X POST "http://localhost:8080/api/v1/books/$BOOK_ID/checkouts" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json"
+```
+
+```bash
+curl -X GET "http://localhost:8080/api/v1/books/checkouts" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json"
 ```
