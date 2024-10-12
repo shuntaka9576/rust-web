@@ -225,7 +225,32 @@ impl CheckoutRepository for CheckoutRepositoryImpl {
     }
 
     async fn find_unreturned_by_user_id(&self, user_id: UserId) -> AppResult<Vec<Checkout>> {
-        todo!()
+        sqlx::query_as!(
+            CheckoutRow,
+            r#"
+            SELECT
+               c.checkout_id,
+               c.book_id,
+               c.user_id,
+               c.checked_out_at,
+               b.title,
+               b.author,
+               b.isbn
+            FROM checkouts AS c
+            INNER JOIN books AS b USING(book_id)
+            WHERE c.user_id = $1
+            ORDER BY c.checked_out_at ASC;
+            "#,
+            user_id as _
+        )
+        .fetch_all(self.db.inner_ref())
+        .await
+        .map(|rows| {
+            rows.into_iter()
+                .map(Checkout::from)
+                .collect::<Vec<Checkout>>()
+        })
+        .map_err(AppError::SpecificOperationError)
     }
 
     async fn find_history_by_book_id(&self, book_id: BookId) -> AppResult<Vec<Checkout>> {
