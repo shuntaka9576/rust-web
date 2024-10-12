@@ -1,4 +1,5 @@
 use chrono::{DateTime, Utc};
+use serde::Serialize;
 
 use super::id::{BookId, CheckoutId, UserId};
 
@@ -12,6 +13,7 @@ pub struct Checkout {
     pub book: CheckoutBook,
 }
 
+#[derive(Serialize)]
 pub struct CheckoutBook {
     pub book_id: BookId,
     pub title: String,

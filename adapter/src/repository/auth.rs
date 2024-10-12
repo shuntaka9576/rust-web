@@ -5,7 +5,6 @@ use derive_new::new;
 use kernel::{
     model::{
         auth::{event::CreateToken, AccessToken},
-        book::event::CreateBook,
         id::UserId,
     },
     repository::auth::AuthRepository,
@@ -64,7 +63,7 @@ impl AuthRepository for AuthRepositoryImpl {
 
     async fn create_token(&self, event: CreateToken) -> AppResult<AccessToken> {
         let (key, value) = from(event);
-        let result = self.kv.set_ex(&key, &value, self.ttl).await;
+        let _result = self.kv.set_ex(&key, &value, self.ttl).await;
         Ok(key.into())
     }
 
