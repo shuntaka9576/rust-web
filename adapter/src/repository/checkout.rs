@@ -13,7 +13,10 @@ use kernel::{
 };
 use shared::error::{AppError, AppResult};
 
-use crate::database::{model::checkout::CheckoutStateRow, ConnectionPool};
+use crate::database::{
+    model::checkout::{CheckoutRow, CheckoutStateRow},
+    ConnectionPool,
+};
 
 #[derive(new)]
 pub struct CheckoutRepositoryImpl {
@@ -151,10 +154,71 @@ impl CheckoutRepository for CheckoutRepositoryImpl {
                 _ => {}
             }
         }
+
+        let res = sqlx::query!(
+            r#"
+        INSERT INTO returned_checkouts
+        (checkout_id, book_id, user_id, checked_out_at, returned_at)
+        SELECT checkout_id, book_id, user_id, checked_out_at, $2
+        FROM checkouts
+        WHERE checkout_id = $1
+            "#,
+            event.checkout_id as _,
+            event.returned_at
+        )
+        .execute(&mut *tx)
+        .await
+        .map_err(AppError::SpecificOperationError)?;
+
+        if res.rows_affected() < 1 {
+            return Err(AppError::NoRowsAffectedError(
+                "No returning record has benn updated".into(),
+            ));
+        }
+
+        let res = sqlx::query!(
+            r#"
+         DELETE FROM checkouts WHERE checkout_id = $1;
+            "#,
+            event.checkout_id as _
+        )
+        .execute(&mut *tx)
+        .await
+        .map_err(AppError::SpecificOperationError)?;
+
+        if res.rows_affected() < 1 {
+            return Err(AppError::NoRowsAffectedError(
+                "No checkout record has been deleted".into(),
+            ));
+        }
+
+        tx.commit().await.map_err(AppError::TransactionError)?;
+
+        Ok(())
     }
 
     async fn find_unreturned_all(&self) -> AppResult<Vec<Checkout>> {
-        todo!()
+        sqlx::query_as!(
+            CheckoutRow,
+            r#"
+         SELECT 
+             c.checkout_id,
+             c.book_id,
+             c.user_id,
+             c.checked_out_at,
+             b.title,
+             b.author,
+             b.isbn
+         FROM checkouts AS c
+         INNER JOIN books AS b USING(book_id)
+         ORDER BY c.checked_out_at ASC;
+            "#
+        )
+        .fetch_all(self.db.inner_ref())
+        .await
+        .map(|rows| rows.into_iter().map(Checkout::from).collect())
+        // .map(|rows| rows.into_iter().map(Checkout::from).collect())
+        .map_err(AppError::SpecificOperationError)?
     }
 
     async fn find_unreturned_by_user_id(&self, user_id: UserId) -> AppResult<Vec<Checkout>> {
