@@ -7,7 +7,7 @@ pub mod event;
 pub struct Checkout {
     pub id: CheckoutId,
     pub checkout_out_by: UserId,
-    pub checkout_out_at: DateTime<Utc>,
+    pub checked_out_at: DateTime<Utc>,
     pub returned_at: Option<DateTime<Utc>>,
     pub book: CheckoutBook,
 }
