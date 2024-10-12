@@ -110,7 +110,47 @@ impl CheckoutRepository for CheckoutRepositoryImpl {
     }
 
     async fn update_returned(&self, event: UpdateReturned) -> AppResult<()> {
-        todo!()
+        let mut tx = self.db.begin().await?;
+
+        self.set_transaction_serializable(&mut tx).await?;
+
+        {
+            let res = sqlx::query_as!(
+                CheckoutStateRow,
+                r#"
+            SELECT
+                b.book_id,
+                c.checkout_id AS "checkout_id?: CheckoutId",
+                c.user_id AS "user_id?: UserId"
+            FROM books AS b
+            LEFT OUTER JOIN checkouts AS c USING(book_id)
+            WHERE book_id = $1;"#,
+                event.book_id as _
+            )
+            .fetch_optional(&mut *tx)
+            .await
+            .map_err(AppError::SpecificOperationError)?;
+
+            match res {
+                None => {
+                    return Err(AppError::EntityNotFound(format!(
+                        "書籍({})が見つかりませんでした。",
+                        event.book_id
+                    )))
+                }
+                Some(CheckoutStateRow {
+                    checkout_id: Some(c),
+                    user_id: Some(u),
+                    book_id,
+                }) if (c, u) != (event.checkout_id, event.returned_by) => {
+                    return Err(AppError::UnprocessableEntity(format!(
+                        "指定の貸出(ID({}), ユーザー({}), 書籍({})は返却できません。",
+                        event.checkout_id, event.returned_by, event.book_id
+                    )))
+                }
+                _ => {}
+            }
+        }
     }
 
     async fn find_unreturned_all(&self) -> AppResult<Vec<Checkout>> {
