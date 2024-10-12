@@ -198,7 +198,7 @@ impl CheckoutRepository for CheckoutRepositoryImpl {
     }
 
     async fn find_unreturned_all(&self) -> AppResult<Vec<Checkout>> {
-        sqlx::query_as!(
+        let rows = sqlx::query_as!(
             CheckoutRow,
             r#"
          SELECT 
@@ -216,8 +216,12 @@ impl CheckoutRepository for CheckoutRepositoryImpl {
         )
         .fetch_all(self.db.inner_ref())
         .await
-        .map(|rows| rows.into_iter().map(Checkout::from).collect())
-        .map_err(AppError::SpecificOperationError)
+        .map_err(AppError::SpecificOperationError)?;
+
+        // NOTE: 書籍の書き方だと型推論を効かせる形式でコンパイルが通ったり通らなかったりする
+        rows.into_iter()
+            .map(Checkout::from)
+            .collect::<Vec<Checkout>>();
     }
 
     async fn find_unreturned_by_user_id(&self, user_id: UserId) -> AppResult<Vec<Checkout>> {
