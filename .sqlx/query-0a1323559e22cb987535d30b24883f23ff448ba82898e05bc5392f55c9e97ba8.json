@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n           SELECT\n              book_id,\n              title,\n              author,\n              isbn,\n              description\n           FROM books\n           WHERE book_id = $1\n            ",
+  "query": "\n           SELECT\n             b.book_id AS book_id,\n             b.title AS title,\n             b.author AS author,\n             b.isbn AS isbn,\n             b.description AS description,\n             u.user_id AS owned_by,\n             u.name AS owner_name\n           FROM books AS b\n           INNER JOIN users AS u USING(user_id)\n           WHERE book_id = $1\n            ",
   "describe": {
     "columns": [
       {
@@ -27,6 +27,16 @@
         "ordinal": 4,
         "name": "description",
         "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "owned_by",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "owner_name",
+        "type_info": "Varchar"
       }
     ],
     "parameters": {
@@ -39,8 +49,10 @@
       false,
       false,
       false,
+      false,
+      false,
       false
     ]
   },
-  "hash": "d02016bbe24c3beabf50761f512db18e61fa605604e648f4fa7d06ea9ae40e10"
+  "hash": "0a1323559e22cb987535d30b24883f23ff448ba82898e05bc5392f55c9e97ba8"
 }

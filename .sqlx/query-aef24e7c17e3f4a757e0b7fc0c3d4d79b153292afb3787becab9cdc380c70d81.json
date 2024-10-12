@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n        DELETE FROM books\n        WHERE book_id = $1\n        AND user_id = $2\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "aef24e7c17e3f4a757e0b7fc0c3d4d79b153292afb3787becab9cdc380c70d81"
+}

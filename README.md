@@ -1,4 +1,14 @@
 
+## 注意点
+
+### sqlxのv2マクロを使うと、`cargo sqlx prepare`か`DATABASE_URL`の設定が必要
+
+```bash
+DATABASE_URL = "postgresql://localhost:5432/app?user=app&password=passwd"
+nvim
+```
+
+
 ## アプリ関連
 
 ```bash

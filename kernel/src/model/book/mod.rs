@@ -1,4 +1,9 @@
-use super::id::BookId;
+use serde::Serialize;
+
+use super::{
+    id::{BookId, UserId},
+    user::BookOwner,
+};
 
 pub mod event;
 
@@ -9,4 +14,10 @@ pub struct Book {
     pub author: String,
     pub isbn: String,
     pub description: String,
+    pub owner: BookOwner,
+}
+
+pub struct BookListOptions {
+    pub limit: i64,
+    pub offset: i64,
 }

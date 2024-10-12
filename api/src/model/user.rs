@@ -11,6 +11,21 @@ use kernel::model::{
 use serde::{Deserialize, Serialize};
 use strum::VariantNames;
 
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BookOwner {
+    pub id: UserId,
+    pub name: String,
+}
+
+impl From<kernel::model::user::BookOwner> for BookOwner {
+    fn from(value: kernel::model::user::BookOwner) -> Self {
+        let kernel::model::user::BookOwner { id, name } = value;
+
+        Self { id, name }
+    }
+}
+
 #[derive(Serialize, Deserialize, VariantNames)]
 #[strum(serialize_all = "kebab-case")]
 pub enum RoleName {
