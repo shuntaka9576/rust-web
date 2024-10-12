@@ -92,6 +92,7 @@ curl -v http://localhost:8080/books | jq .
 export TOKEN=$(curl -s -X POST "http://localhost:8080/auth/login" \
   -H 'content-type: application/json' \
   -d '{"email": "eleazar.fig@example.com", "password": "Pa55w0rd"}' | jq -r ".accessToken")
+echo $TOKEN
 ```
 
 ユーザー一覧の取得
@@ -132,8 +133,21 @@ curl -X POST "http://localhost:8080/api/v1/books/$BOOK_ID/checkouts" \
   -H "Content-Type: application/json"
 ```
 
+貸出一覧
 ```bash
 curl -X GET "http://localhost:8080/api/v1/books/checkouts" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json"
+
+export CHECKOUT_ID=$(curl -s -X GET "http://localhost:8080/api/v1/books/checkouts" \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" | jq -r ".items[0].id")
+echo $CHECKOUT_ID
+```
+
+返却
+```bash
+curl -v -X PUT "http://localhost:8080/api/v1/books/$BOOK_ID/checkouts/$CHECKOUT_ID/returned" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json"
 ```
