@@ -15,7 +15,7 @@ use crate::{
         user::{
             CreateUserRequest, UpdateUserPasswordRequest,
             UpdateUserPasswordRequestRequestWithUserId, UpdateUserRoleRequest,
-            UpdateUserRoleRoleRequestWithUserId, UserResponse, UsersResponse,
+            UpdateUserRoleRequestWithUserId, UserResponse, UsersResponse,
         },
     },
 };
@@ -80,7 +80,7 @@ pub async fn change_role(
 
     registry
         .user_repository()
-        .update_role(UpdateUserRoleRoleRequestWithUserId::new(user_id, req).into())
+        .update_role(UpdateUserRoleRequestWithUserId::new(user_id, req).into())
         .await?;
 
     Ok(StatusCode::OK)

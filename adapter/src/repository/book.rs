@@ -267,6 +267,8 @@ mod tests {
             isbn,
             description,
             owner,
+
+            checkout,
         } = res.unwrap();
         assert_eq!(id, book_id);
         assert_eq!(title, "Test Title");

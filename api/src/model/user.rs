@@ -146,11 +146,11 @@ pub struct UpdateUserRoleRequest {
 }
 
 #[derive(new)]
-pub struct UpdateUserRoleRoleRequestWithUserId(UserId, UpdateUserRoleRequest);
+pub struct UpdateUserRoleRequestWithUserId(UserId, UpdateUserRoleRequest);
 
-impl From<UpdateUserRoleRoleRequestWithUserId> for UpdateUserRole {
-    fn from(value: UpdateUserRoleRoleRequestWithUserId) -> Self {
-        let UpdateUserRoleRoleRequestWithUserId(user_id, UpdateUserRoleRequest { role }) = value;
+impl From<UpdateUserRoleRequestWithUserId> for UpdateUserRole {
+    fn from(value: UpdateUserRoleRequestWithUserId) -> Self {
+        let UpdateUserRoleRequestWithUserId(user_id, UpdateUserRoleRequest { role }) = value;
         Self {
             user_id,
             role: Role::from(role),
