@@ -106,7 +106,7 @@ impl From<BookListQuery> for BookListOptions {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BookResponse {
     pub id: BookId,
@@ -115,6 +115,7 @@ pub struct BookResponse {
     pub isbn: String,
     pub description: String,
     pub owner: BookOwner,
+    pub checkout: Option<BookCheckoutResponse>,
 }
 
 impl From<Book> for BookResponse {
@@ -136,6 +137,7 @@ impl From<Book> for BookResponse {
             isbn,
             description,
             owner: owner.into(),
+            checkout: checkout.map(BookCheckoutResponse::from),
         }
     }
 }

@@ -37,12 +37,14 @@ pub async fn show_book_list(
 ) -> AppResult<Json<PaginatedBookResponse>> {
     query.validate(&())?;
 
-    registry
+    let res = registry
         .book_repository
         .find_all(query.into())
         .await
         .map(PaginatedBookResponse::from)
-        .map(Json)
+        .map(Json);
+
+    return res;
 }
 
 pub async fn show_book(
