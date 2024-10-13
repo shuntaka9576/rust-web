@@ -4,7 +4,7 @@ use axum_extra::{
     TypedHeader,
 };
 use kernel::model::{auth::AccessToken, id::UserId, role::Role, user::User};
-use registry::AppRegistry;
+use registry::AppRegistryImpl;
 use shared::error::AppError;
 
 pub struct AuthorizedUser {
@@ -23,12 +23,12 @@ impl AuthorizedUser {
 }
 
 #[async_trait]
-impl FromRequestParts<AppRegistry> for AuthorizedUser {
+impl FromRequestParts<AppRegistryImpl> for AuthorizedUser {
     type Rejection = AppError;
 
     async fn from_request_parts(
         parts: &mut Parts,
-        registry: &AppRegistry,
+        registry: &AppRegistryImpl,
     ) -> Result<Self, Self::Rejection> {
         let TypedHeader(Authorization(bearer)) = parts
             .extract::<TypedHeader<Authorization<Bearer>>>()

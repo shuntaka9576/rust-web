@@ -8,7 +8,7 @@ use tower_http::cors::{self, CorsLayer};
 use anyhow::{Error, Result};
 use api::route::{auth, book::build_book_routers, health::build_health_check_routers, v1};
 use axum::{http::Method, Router};
-use registry::AppRegistry;
+use registry::AppRegistryImpl;
 use shared::config::AppConfig;
 
 use adapter::{database::connect_database_with, redis::RedisClient};
@@ -54,7 +54,7 @@ async fn bootstrap() -> Result<()> {
 
     let kv = Arc::new(RedisClient::new(&app_config.redis)?);
 
-    let registry = AppRegistry::new(pool, kv, app_config);
+    let registry = AppRegistryImpl::new(pool, kv, app_config);
 
     let app = Router::new()
         .merge(build_health_check_routers())

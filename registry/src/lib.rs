@@ -14,7 +14,7 @@ use shared::config::AppConfig;
 use std::sync::Arc;
 
 #[derive(Clone)]
-pub struct AppRegistry {
+pub struct AppRegistryImpl {
     pub health_check_repository: Arc<dyn HealthCheckRepository>,
     pub book_repository: Arc<dyn BookRepository>,
     pub auth_repository: Arc<dyn AuthRepository>,
@@ -22,7 +22,7 @@ pub struct AppRegistry {
     pub checkout_repository: Arc<dyn CheckoutRepository>,
 }
 
-impl AppRegistry {
+impl AppRegistryImpl {
     pub fn new(
         pool: ConnectionPool,
         redis_client: Arc<RedisClient>,
