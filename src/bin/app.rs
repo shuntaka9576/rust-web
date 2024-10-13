@@ -5,9 +5,8 @@ use std::{
     sync::Arc,
 };
 use tower_http::cors::{self, CorsLayer};
-use tracing::instrument::WithSubscriber;
 
-use anyhow::{Context, Error, Result};
+use anyhow::{Context, Result};
 use api::route::{auth, v1};
 use axum::{http::Method, Router};
 use registry::AppRegistryImpl;
@@ -40,6 +39,7 @@ fn init_logger() -> Result<()> {
         .with_auto_split_batch(true)
         .with_max_packet_size(8192)
         .install_simple()?;
+
     let opentelemetry = tracing_opentelemetry::layer().with_tracer(tracer);
 
     let env_filter = EnvFilter::try_from_default_env().unwrap_or_else(|_| log_level.into());
@@ -57,6 +57,7 @@ fn init_logger() -> Result<()> {
     tracing_subscriber::registry()
         .with(subscriber)
         .with(env_filter)
+        .with(opentelemetry)
         .try_init()?;
 
     Ok(())
