@@ -227,12 +227,19 @@ impl BookRepository for BookRepositoryImpl {
 #[cfg(test)]
 mod tests {
     use super::*; // NOTE: 明示的に書かないとBookRepositoryImplのresがLSPで補足されない
-    use kernel::{
-        model::{book::event::CreateBook, user::event::CreateUser},
-        repository::user::UserRepository,
+    use crate::repository::{
+        book::BookRepositoryImpl, checkout::CheckoutRepositoryImpl, user::UserRepositoryImpl,
     };
-
-    use crate::{database::ConnectionPool, repository::user::UserRepositoryImpl};
+    use chrono::Utc;
+    use kernel::{
+        model::{
+            checkout::event::{CreateCheckout, UpdateReturned},
+            id::UserId,
+            user::event::CreateUser,
+        },
+        repository::{checkout::CheckoutRepository, user::UserRepository},
+    };
+    use std::str::FromStr;
 
     #[sqlx::test]
     async fn test_register_book(pool: sqlx::PgPool) -> anyhow::Result<()> {
@@ -290,6 +297,32 @@ mod tests {
         assert_eq!(isbn, "Test ISBN");
         assert_eq!(description, "Test Descriptin");
         assert_eq!(owner.name, "Test User");
+
+        Ok(())
+    }
+
+    #[sqlx::test(fixtures("common", "book"))]
+    async fn test_update_book(pool: sqlx::PgPool) -> anyhow::Result<()> {
+        let repo = BookRepositoryImpl::new(ConnectionPool::new(pool.clone()));
+
+        let book_id = BookId::from_str("14c12190-ceb7-4e59-9f30-c98f3caeb473").unwrap();
+        let book = repo.find_by_id(book_id).await?.unwrap();
+        const NEW_AUTHOR: &str = "更新後の著者名";
+        assert_ne!(book.author, NEW_AUTHOR);
+
+        let update_book = UpdateBook {
+            book_id: book.id,
+            title: book.title,
+            author: NEW_AUTHOR.into(),
+            isbn: book.isbn,
+            description: book.description,
+            requested_user: UserId::from_str("5b4c96ac-316a-4bee-8e69-cac5eb84ff4c").unwrap(),
+        };
+
+        repo.update(update_book).await.unwrap();
+
+        let book = repo.find_by_id(book_id).await?.unwrap();
+        assert_eq!(book.author, NEW_AUTHOR);
 
         Ok(())
     }
