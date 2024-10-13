@@ -5,7 +5,7 @@ use axum::{
 };
 use garde::Validate;
 use kernel::model::{id::UserId, user::event::DeleteUser};
-use registry::AppRegistryImpl;
+use registry::AppRegistry;
 use shared::error::{AppError, AppResult};
 
 use crate::{
@@ -22,7 +22,7 @@ use crate::{
 
 pub async fn register_user(
     user: AuthorizedUser,
-    State(registry): State<AppRegistryImpl>,
+    State(registry): State<AppRegistry>,
     Json(req): Json<CreateUserRequest>,
 ) -> AppResult<Json<UserResponse>> {
     if !user.is_admin() {
@@ -38,7 +38,7 @@ pub async fn register_user(
 
 pub async fn list_users(
     _user: AuthorizedUser,
-    State(registry): State<AppRegistryImpl>,
+    State(registry): State<AppRegistry>,
 ) -> AppResult<Json<UsersResponse>> {
     let items = registry
         .user_repository()
@@ -54,7 +54,7 @@ pub async fn list_users(
 pub async fn delete_user(
     user: AuthorizedUser,
     Path(user_id): Path<UserId>,
-    State(registry): State<AppRegistryImpl>,
+    State(registry): State<AppRegistry>,
 ) -> AppResult<StatusCode> {
     if !user.is_admin() {
         return Err(AppError::ForbiddenOperation);
@@ -71,7 +71,7 @@ pub async fn delete_user(
 pub async fn change_role(
     user: AuthorizedUser,
     Path(user_id): Path<UserId>,
-    State(registry): State<AppRegistryImpl>,
+    State(registry): State<AppRegistry>,
     Json(req): Json<UpdateUserRoleRequest>,
 ) -> AppResult<StatusCode> {
     if !user.is_admin() {
@@ -92,7 +92,7 @@ pub async fn get_current_user(user: AuthorizedUser) -> Json<UserResponse> {
 
 pub async fn change_password(
     user: AuthorizedUser,
-    State(registry): State<AppRegistryImpl>,
+    State(registry): State<AppRegistry>,
     Json(req): Json<UpdateUserPasswordRequest>,
 ) -> AppResult<StatusCode> {
     req.validate(&())?;
@@ -107,7 +107,7 @@ pub async fn change_password(
 
 pub async fn get_checkouts(
     user: AuthorizedUser,
-    State(registry): State<AppRegistryImpl>,
+    State(registry): State<AppRegistry>,
 ) -> AppResult<Json<CheckoutsResponse>> {
     registry
         .checkout_repository()

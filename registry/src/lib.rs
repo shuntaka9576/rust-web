@@ -47,19 +47,57 @@ impl AppRegistryImpl {
         }
     }
 
-    pub fn health_check_repository(&self) -> Arc<dyn HealthCheckRepository> {
+    // pub fn health_check_repository(&self) -> Arc<dyn HealthCheckRepository> {
+    //     self.health_check_repository.clone()
+    // }
+
+    // // FIXME: 使っていない？
+    // pub fn book_repository(&self) -> Arc<dyn BookRepository> {
+    //     self.book_repository.clone()
+    // }
+
+    // pub fn auth_repository(&self) -> Arc<dyn AuthRepository> {
+    //     self.auth_repository.clone()
+    // }
+
+    // pub fn user_repository(&self) -> Arc<dyn UserRepository> {
+    //     self.user_repository.clone()
+    // }
+
+    // pub fn checkout_repository(&self) -> Arc<dyn CheckoutRepository> {
+    //     self.checkout_repository.clone()
+    // }
+}
+
+#[mockall::automock]
+pub trait AppRegistryExt {
+    fn health_check_repository(&self) -> Arc<dyn HealthCheckRepository>;
+    fn book_repository(&self) -> Arc<dyn BookRepository>;
+    fn auth_repository(&self) -> Arc<dyn AuthRepository>;
+    fn user_repository(&self) -> Arc<dyn UserRepository>;
+    fn checkout_repository(&self) -> Arc<dyn CheckoutRepository>;
+}
+
+impl AppRegistryExt for AppRegistryImpl {
+    fn book_repository(&self) -> Arc<dyn BookRepository> {
+        self.book_repository.clone()
+    }
+
+    fn health_check_repository(&self) -> Arc<dyn HealthCheckRepository> {
         self.health_check_repository.clone()
     }
 
-    pub fn auth_repository(&self) -> Arc<dyn AuthRepository> {
+    fn auth_repository(&self) -> Arc<dyn AuthRepository> {
         self.auth_repository.clone()
     }
 
-    pub fn user_repository(&self) -> Arc<dyn UserRepository> {
+    fn user_repository(&self) -> Arc<dyn UserRepository> {
         self.user_repository.clone()
     }
 
-    pub fn checkout_repository(&self) -> Arc<dyn CheckoutRepository> {
+    fn checkout_repository(&self) -> Arc<dyn CheckoutRepository> {
         self.checkout_repository.clone()
     }
 }
+
+pub type AppRegistry = Arc<dyn AppRegistryExt + Send + Sync + 'static>;
