@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use axum::{body::Body, http::Request};
+use registry::MockAppRegistryExt;
 use rstest::rstest;
 use tower::ServiceExt;
 
@@ -69,6 +70,53 @@ async fn show_book_list_with_query_200(
     let result = deserialize_json!(resp, PaginatedBookResponse);
     assert_eq!(result.limit, expected_limit);
     assert_eq!(result.offset, expected_offset);
+
+    Ok(())
+}
+
+#[rstest]
+#[case("/books?limit=-1")]
+#[case("/books?offset=aaa")]
+#[tokio::test]
+async fn show_book_list_with_query_400(
+    mut fixture: registry::MockAppRegistryExt,
+    #[case] path: &str,
+) -> anyhow::Result<()> {
+    let book_id = BookId::new();
+
+    fixture.expect_book_repository().returning(move || {
+        let mut mock = MockBookRepository::new();
+
+        mock.expect_find_all().returning(move |opt| {
+            let items = vec![Book {
+                id: book_id,
+                title: "RustによるWebアプリケーション開発".to_string(),
+                isbn: "".to_string(),
+                author: "Yuki Toyoda".to_string(),
+                description: "RustによるWebアプリケーション開発".to_string(),
+                owner: BookOwner {
+                    id: UserId::new(),
+                    name: "Yuki Toyoda".to_string(),
+                },
+                checkout: None,
+            }];
+            Ok(PaginatedList {
+                total: 1,
+                limit: opt.limit,
+                offset: opt.offset,
+                items,
+            })
+        });
+
+        Arc::new(mock)
+    });
+
+    let app: axum::Router = make_router(fixture);
+
+    let req = Request::get(&v1(path)).bearer().body(Body::empty())?;
+    let resp = app.oneshot(req).await?;
+
+    assert_eq!(resp.status(), axum::http::StatusCode::BAD_REQUEST);
 
     Ok(())
 }
