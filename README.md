@@ -16,6 +16,12 @@ cargo make before-build
 cargo make test
 ```
 
+コンパイルパフォーマンス
+```bash
+cargo make clean
+cargo make build --timings
+```
+
 ## コンテナ起動
 
 ```bash
