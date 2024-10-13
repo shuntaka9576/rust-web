@@ -18,7 +18,6 @@ pub async fn checkout_book(
     State(registry): State<AppRegistry>,
 ) -> AppResult<StatusCode> {
     let create_checkout_history = CreateCheckout::new(book_id, user.id(), chrono::Utc::now());
-    println!("reate_checkout_history: {:?}", create_checkout_history);
 
     registry
         .checkout_repository()

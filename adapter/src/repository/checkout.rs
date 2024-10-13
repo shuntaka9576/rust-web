@@ -88,8 +88,6 @@ impl CheckoutRepository for CheckoutRepositoryImpl {
             .await
             .map_err(AppError::SpecificOperationError)?;
 
-            println!("res: {:?}", res);
-
             match res {
                 None => {
                     return Err(AppError::EntityNotFound(format!(
@@ -102,7 +100,6 @@ impl CheckoutRepository for CheckoutRepositoryImpl {
                     book_id,
                     user_id,
                 }) => {
-                    println!("err!");
                     return Err(AppError::UnprocessableEntity(format!(
                         "書籍({})に対する貸出がすでに存在します。",
                         event.book_id
