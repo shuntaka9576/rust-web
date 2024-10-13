@@ -106,6 +106,7 @@ dependencies = [
  "tower 0.4.13",
  "tracing",
  "utoipa",
+ "utoipa-redoc",
 ]
 
 [[package]]
@@ -1125,6 +1126,7 @@ dependencies = [
  "shared",
  "sqlx",
  "strum",
+ "utoipa",
  "uuid",
 ]
 

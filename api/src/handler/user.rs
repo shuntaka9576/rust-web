@@ -29,7 +29,7 @@ pub async fn register_user(
         return Err(AppError::ForbiddenOperation);
     }
 
-    req.validate(&());
+    req.validate(&())?;
 
     let registerd_user = registry.user_repository().create(req.into()).await?;
 

@@ -30,6 +30,28 @@ pub async fn register_book(
         .map(|_| StatusCode::CREATED)
 }
 
+#[cfg_attr(
+    debug_assertions,
+    utoipa::path(
+        get,
+        path="/api/v1/books",
+        responses(
+            (status = 200, description = "蔵書一覧の取得に成功した場合。", body = PaginatedBookResponse),
+            (status = 400, description = "指定されたクエリの値に不備があった場合。"),
+            (status = 401, description = "認証されていないユーザーがアクセスした場合。"),
+        ),
+        params(
+            ("limit" = i64, Query, description = "一度に取得する蔵書数の上限値の指定"),
+            ("offset" = i64, Query, description = "取得対象とする蔵書一覧の開始位置"),
+        )
+    )
+)]
+#[tracing::instrument(
+    skip(_user, registry),
+    fields(
+        user_id = %_user.user.id.to_string()
+    )
+)]
 pub async fn show_book_list(
     _user: AuthorizedUser,
     Query(query): Query<BookListQuery>,
