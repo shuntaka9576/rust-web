@@ -11,7 +11,7 @@ use shared::error::{AppError, AppResult};
 use crate::{
     extractor::AuthorizedUser,
     model::book::{
-        BookListQuery, BookReponse, CreateBookRequest, PaginatedBookResponse, UpdateBookRequest,
+        BookListQuery, BookResponse, CreateBookRequest, PaginatedBookResponse, UpdateBookRequest,
         UpdateBookRequestWithIds,
     },
 };
@@ -48,7 +48,7 @@ pub async fn show_book_list(
 pub async fn show_book(
     Path(book_id): Path<BookId>,
     State(registry): State<AppRegistry>,
-) -> Result<Json<BookReponse>, AppError> {
+) -> Result<Json<BookResponse>, AppError> {
     registry
         .book_repository
         .find_by_id(book_id)

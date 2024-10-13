@@ -151,3 +151,8 @@ curl -v -X PUT "http://localhost:8080/api/v1/books/$BOOK_ID/checkouts/$CHECKOUT_
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json"
 ```
+
+```bash
+curl -v "http://localhost:8080/api/v1/books" \
+  -H "Authorization: Bearer $TOKEN"
+```

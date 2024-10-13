@@ -18,7 +18,7 @@ pub struct BookOwner {
     pub name: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct CheckoutUser {
     pub id: UserId,
     pub name: String,

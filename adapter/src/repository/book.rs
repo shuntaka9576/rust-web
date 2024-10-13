@@ -12,7 +12,6 @@ use kernel::{
             event::{CreateBook, DeleteBook, UpdateBook},
             Book, BookListOptions, Checkout,
         },
-        checkout::Checkout,
         id::{BookId, UserId},
         list::PaginatedList,
     },
@@ -121,9 +120,18 @@ impl BookRepository for BookRepositoryImpl {
         .map_err(AppError::SpecificOperationError)?;
 
         // FIXME: これは一回のSQLで取得する方法もある
+        // 現在は本一覧を取得->本おのID一覧から、貸出リストを取得->本一覧にくっけて返却
         // let items = rows.into_iter().map(Book::from).collect();
         let book_ids = rows.iter().map(|book| book.book_id).collect::<Vec<_>>();
         let mut checkouts = self.find_checkouts(&book_ids).await?;
+
+        let items = rows
+            .into_iter()
+            .map(|row| {
+                let checkout = checkouts.remove(&row.book_id);
+                row.into_book(checkout)
+            })
+            .collect();
 
         Ok(PaginatedList {
             total,
@@ -155,7 +163,13 @@ impl BookRepository for BookRepositoryImpl {
         .await
         .map_err(AppError::SpecificOperationError)?;
 
-        Ok(row.map(Book::from))
+        match row {
+            Some(r) => {
+                let checkout = self.find_checkouts(&[r.book_id]).await?.remove(&r.book_id);
+                Ok(Some(r.into_book(checkout)))
+            }
+            None => Ok(None),
+        }
     }
 
     async fn update(&self, event: UpdateBook) -> AppResult<()> {

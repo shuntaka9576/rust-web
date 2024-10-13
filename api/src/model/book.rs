@@ -1,15 +1,16 @@
 use core::panic::PanicMessage;
 
+use chrono::{DateTime, Utc};
 use derive_new::new;
 use garde::Validate;
 use kernel::model::{
     book::{
         event::{CreateBook, UpdateBook},
-        Book, BookListOptions,
+        Book, BookListOptions, Checkout,
     },
-    id::{BookId, UserId},
+    id::{BookId, CheckoutId, UserId},
     list::PaginatedList,
-    user::BookOwner,
+    user::{BookOwner, CheckoutUser},
 };
 use serde::{Deserialize, Serialize};
 
@@ -107,7 +108,7 @@ impl From<BookListQuery> for BookListOptions {
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct BookReponse {
+pub struct BookResponse {
     pub id: BookId,
     pub title: String,
     pub author: String,
@@ -116,7 +117,7 @@ pub struct BookReponse {
     pub owner: BookOwner,
 }
 
-impl From<Book> for BookReponse {
+impl From<Book> for BookResponse {
     fn from(value: Book) -> Self {
         let Book {
             id,
@@ -125,7 +126,9 @@ impl From<Book> for BookReponse {
             isbn,
             description,
             owner,
+            checkout,
         } = value;
+
         Self {
             id,
             title,
@@ -143,7 +146,7 @@ pub struct PaginatedBookResponse {
     pub total: i64,
     pub limit: i64,
     pub offset: i64,
-    pub items: Vec<BookReponse>,
+    pub items: Vec<BookResponse>,
 }
 
 impl From<PaginatedList<Book>> for PaginatedBookResponse {
@@ -158,7 +161,30 @@ impl From<PaginatedList<Book>> for PaginatedBookResponse {
             total,
             limit,
             offset,
-            items: items.into_iter().map(BookReponse::from).collect(),
+            items: items.into_iter().map(BookResponse::from).collect(),
+        }
+    }
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BookCheckoutResponse {
+    pub id: CheckoutId,
+    pub checked_out_by: CheckoutUser,
+    pub checked_out_at: DateTime<Utc>,
+}
+
+impl From<Checkout> for BookCheckoutResponse {
+    fn from(value: Checkout) -> Self {
+        let Checkout {
+            checkout_id,
+            checked_out_by,
+            checked_out_at,
+        } = value;
+        Self {
+            id: checkout_id,
+            checked_out_by,
+            checked_out_at,
         }
     }
 }
