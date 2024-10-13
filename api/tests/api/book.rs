@@ -20,8 +20,11 @@ use kernel::{
 };
 
 #[rstest]
-#[tokio::test]
 #[case("/books", 20, 0)]
+#[case("/books?limit=50", 50, 0)]
+#[case("/books?limit=50&offset=20", 50, 20)]
+#[case("/books?offset=20", 20, 20)]
+#[tokio::test]
 async fn show_book_list_with_query_200(
     mut fixture: registry::MockAppRegistryExt,
     #[case] path: &str,
