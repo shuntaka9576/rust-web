@@ -4,6 +4,7 @@ use std::{
     sync::Arc,
 };
 use tower_http::cors::{self, CorsLayer};
+use tracing::instrument::WithSubscriber;
 
 use anyhow::{Error, Result};
 use api::route::{auth, v1};
@@ -33,6 +34,10 @@ fn init_logger() -> Result<()> {
         .with_file(true)
         .with_line_number(true)
         .with_target(false);
+
+    // リリースビルドでは、JSONの構造化ログを出力
+    #[cfg(not(debug_assertions))]
+    let subscriber = subscriber.json();
 
     tracing_subscriber::registry()
         .with(subscriber)
