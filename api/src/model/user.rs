@@ -10,7 +10,10 @@ use kernel::model::{
 };
 use serde::{Deserialize, Serialize};
 use strum::VariantNames;
+#[cfg(debug_assertions)]
+use utoipa::ToSchema;
 
+#[cfg_attr(debug_assertions, derive(ToSchema))]
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BookOwner {
@@ -158,6 +161,7 @@ impl From<UpdateUserRoleRequestWithUserId> for UpdateUserRole {
     }
 }
 
+#[cfg_attr(debug_assertions, derive(ToSchema))]
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CheckoutUser {

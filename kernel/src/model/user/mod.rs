@@ -1,6 +1,8 @@
 pub mod event;
 
 use serde::{Deserialize, Serialize};
+#[cfg(debug_assertions)]
+use utoipa::ToSchema;
 
 use super::{id::UserId, role::Role};
 
@@ -19,6 +21,7 @@ pub struct BookOwner {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(debug_assertions, derive(ToSchema))]
 pub struct CheckoutUser {
     pub id: UserId,
     pub name: String,
