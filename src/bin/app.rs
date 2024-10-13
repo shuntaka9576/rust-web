@@ -17,6 +17,7 @@ use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt, EnvFilte
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    init_logger()?;
     bootstrap().await
 }
 
@@ -66,7 +67,7 @@ async fn bootstrap() -> Result<()> {
     let addr = SocketAddr::new(Ipv4Addr::LOCALHOST.into(), 8080);
     let listener = TcpListener::bind(&addr).await?;
 
-    println!("Listening on {}", addr);
+    tracing::info!("Listening on {}", addr);
 
     axum::serve(listener, app).await.map_err(Error::from)
 }
