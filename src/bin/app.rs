@@ -33,7 +33,8 @@ fn init_logger() -> Result<()> {
     let subscriber = tracing_subscriber::fmt::layer()
         .with_file(true)
         .with_line_number(true)
-        .with_target(false);
+        .with_target(false)
+        .json();
 
     // リリースビルドでは、JSONの構造化ログを出力
     #[cfg(not(debug_assertions))]

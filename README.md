@@ -123,6 +123,9 @@ curl -v -X POST "http://localhost:8080/api/v1/books" \
 export BOOK_ID="$(curl -s -X GET "http://localhost:8080/api/v1/books" \
   -H "Authorization: Bearer $TOKEN" | jq -r '.items[0].id')"
 echo $BOOK_ID
+
+curl -s -X GET "http://localhost:8080/api/v1/books/$BOOK_ID" \
+  -H "Authorization: Bearer $TOKEN" | jq
 ```
 
 貸出の実行
