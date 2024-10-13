@@ -1,5 +1,7 @@
+use std::collections::HashMap;
+
 use crate::database::{
-    model::book::{BookRow, PaginatedBookRow},
+    model::book::{BookCheckoutRow, BookRow, PaginatedBookRow},
     ConnectionPool,
 };
 use async_trait::async_trait;
@@ -8,8 +10,9 @@ use kernel::{
     model::{
         book::{
             event::{CreateBook, DeleteBook, UpdateBook},
-            Book, BookListOptions,
+            Book, BookListOptions, Checkout,
         },
+        checkout::Checkout,
         id::{BookId, UserId},
         list::PaginatedList,
     },
@@ -20,6 +23,34 @@ use shared::error::{AppError, AppResult};
 #[derive(new)]
 pub struct BookRepositoryImpl {
     db: ConnectionPool,
+}
+
+impl BookRepositoryImpl {
+    async fn find_checkouts(&self, book_ids: &[BookId]) -> AppResult<HashMap<BookId, Checkout>> {
+        let res = sqlx::query_as!(
+            BookCheckoutRow,
+            r#"
+        SELECT
+            c.checkout_id,
+            c.book_id,
+            u.user_id,
+            u.name AS user_name,
+            c.checked_out_at
+        FROM checkouts AS c
+        INNER JOIN users AS u USING(user_id)
+        WHERE book_id = ANY($1);
+            "#,
+            book_ids as _
+        )
+        .fetch_all(self.db.inner_ref())
+        .await
+        .map_err(AppError::SpecificOperationError)?
+        .into_iter()
+        .map(|checkout| (checkout.book_id, Checkout::from(checkout)))
+        .collect::<HashMap<BookId, Checkout>>(); // FIXME: これも型推論で書籍はいけている
+
+        Ok(res)
+    }
 }
 
 #[async_trait]
@@ -89,7 +120,10 @@ impl BookRepository for BookRepositoryImpl {
         .await
         .map_err(AppError::SpecificOperationError)?;
 
-        let items = rows.into_iter().map(Book::from).collect();
+        // FIXME: これは一回のSQLで取得する方法もある
+        // let items = rows.into_iter().map(Book::from).collect();
+        let book_ids = rows.iter().map(|book| book.book_id).collect::<Vec<_>>();
+        let mut checkouts = self.find_checkouts(&book_ids).await?;
 
         Ok(PaginatedList {
             total,

@@ -5,6 +5,7 @@ use super::id::{BookId, CheckoutId, UserId};
 
 pub mod event;
 
+#[derive(Debug)]
 pub struct Checkout {
     pub id: CheckoutId,
     pub checkout_out_by: UserId,
@@ -13,7 +14,7 @@ pub struct Checkout {
     pub book: CheckoutBook,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug)]
 pub struct CheckoutBook {
     pub book_id: BookId,
     pub title: String,
