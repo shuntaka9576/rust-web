@@ -10,7 +10,7 @@ name = "app"
 path = "src/bin/app.rs"
 
 [workspace]
-members = ["api", "kernel", "adapter", "shared", "registry"]
+members = ["api", "kernel", "adapter", "shared", "registry", "application"]
 
 [workspace.package]
 edition = "2021"
@@ -23,6 +23,7 @@ api = { path = "./api" }
 kernel = { path = "./kernel" }
 shared = { path = "./shared" }
 registry = { path = "./registry" }
+application = { path = "./application" }
 async-trait = "0.1.74"
 anyhow = "1.0.75"
 axum = { version = "0.7.5", features = ["macros"] }

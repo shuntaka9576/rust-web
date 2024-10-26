@@ -110,6 +110,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "application"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "axum-extra",
+ "chrono",
+ "derive-new",
+ "garde",
+ "hyper 0.14.30",
+ "kernel",
+ "mockall",
+ "registry",
+ "rstest",
+ "serde",
+ "serde_json",
+ "shared",
+ "strum",
+ "tokio",
+ "tokio-stream",
+ "tower 0.4.13",
+ "tracing",
+ "utoipa",
+ "utoipa-redoc",
+]
+
+[[package]]
 name = "async-trait"
 version = "0.1.83"
 source = "registry+https://github.com/rust-lang/crates.io-index"

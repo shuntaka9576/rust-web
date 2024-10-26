@@ -15,6 +15,9 @@ use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct AppRegistryImpl {
+    // application
+
+    // repository
     pub health_check_repository: Arc<dyn HealthCheckRepository>,
     pub book_repository: Arc<dyn BookRepository>,
     pub auth_repository: Arc<dyn AuthRepository>,
